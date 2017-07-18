@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="samples">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/code/homework_tester/HWTester/src/main/tests/samples/hanged.jar!/" />
+      <root url="jar://$USER_HOME$/code/homework_tester/HWTester/src/main/tests/samples/mirror.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

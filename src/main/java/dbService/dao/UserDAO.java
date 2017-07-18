@@ -9,6 +9,7 @@ import users.UserProfile;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+
 /**
  * Translates actions with DB to SQL statements and passes them to an Executor
  *
@@ -33,7 +34,7 @@ public class UserDAO {
     public long getUserId(String login) throws SQLException {
         return executor.execQuery("select * from users where login='" + login + "'", result -> {
                     if (!result.next())
-                        return null;
+                        return -1L;
                     return result.getLong("id");
                 }
         );

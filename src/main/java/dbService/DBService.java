@@ -32,8 +32,12 @@ public class DBService {
             // disable saving changes after each statement
             connection.setAutoCommit(false);
             // these actions constitute a transaction, i.e. either nothing or all of them are completed
-            dao.insertUser(login, password);
-            return dao.getUserId(login);
+            long userId = dao.getUserId(login);
+            if (userId < 0) {
+                dao.insertUser(login, password);
+                userId = dao.getUserId(login);
+            } else userId = -1;
+            return userId;
         } catch (SQLException e) {
             try {
                 // if an error happens while executing one of them, we roll the changes back
