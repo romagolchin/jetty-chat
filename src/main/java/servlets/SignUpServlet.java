@@ -30,19 +30,21 @@ public class SignUpServlet extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         @Nullable String login = req.getParameter("login");
         @Nullable String password = req.getParameter("password");
-        @Nullable String passwordAgain = req.getParameter("passwordAgain");
+        @Nullable String passwordAgain =
+//                req.getParameter("passwordAgain");
+                password;
         resp.setContentType(Constants.HTML_CONTENT_TYPE);
         if (login == null || password == null || passwordAgain == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else if (!passwordAgain.equals(password)) {
-            resp.getWriter().print(PageGenerator.instance().getPage("signup.html",
-                    Collections.singletonMap("errorMessage", "Passwords do not match")));
+//            resp.getWriter().print(PageGenerator.instance().getPage("signup.html",
+//                    Collections.singletonMap("errorMessage", "Passwords do not match")));
         } else {
             try {
                 AccountService.addUser(login, password);
             } catch (ExistingUserException e) {
-                resp.getWriter().print(PageGenerator.instance().getPage("signup.html",
-                        Collections.singletonMap("errorMessage", String.format(ExistingUserException.ERROR_FMT, login))));
+//                resp.getWriter().print(PageGenerator.instance().getPage("signup.html",
+//                        Collections.singletonMap("errorMessage", String.format(ExistingUserException.ERROR_FMT, login))));
             }
             resp.setStatus(HttpServletResponse.SC_OK);
         }

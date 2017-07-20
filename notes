@@ -1,0 +1,18 @@
+apache, nginx
+статические страницы (возвращает конкретный файл)
+jetty
+динамическая генерация
+JDBC
+Java Database Connectivity
+интерфейс м/у Java и драйверами БД
+ORM
+Object Relational Mapping
+соответствие м/у объектами и таблицами (реляционными схемами)
+Java Persistency API
+Hibernate
+библиотека, осуществляющая ORM
+
+Основные сущности JDBC
+Connection
+Statement 
+ResultSet

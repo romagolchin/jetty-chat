@@ -1,5 +1,9 @@
 package main;
 
+import accounts.AccountService;
+import dbService.DBService;
+import dbService.DBServiceImpl;
+import dbService.SessionFactoryHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -29,9 +33,18 @@ public class Main {
         server.setHandler(context);
 
         System.err.println("Server started");
+        DBService service = new DBServiceImpl();
+        AccountService.setDbService(service);
         server.start();
-//        StdErrLog stdErrLog = new StdErrLog();
-//        stdErrLog.info("main", "Server started");
+//        try {
+//            System.out.println(service.addUser("test", "fest"));
+//            System.out.println(service.addUser("test", "fest1"));
+//            System.out.println(service.getUser("test"));
+//            System.out.println(service.getUser("test2"));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         server.join();
+        SessionFactoryHolder.closeSessionFactory();
     }
 }

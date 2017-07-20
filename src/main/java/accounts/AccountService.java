@@ -1,18 +1,21 @@
 package accounts;
 
+import dbService.DBService;
+import dbService.DBServiceImpl;
 import exceptions.ExistingUserException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * @author Roman Golchin (romagolchin@gmail.com)
  */
 public class AccountService {
 
-    private static final Map<String, UserProfile> userProfileMap = new ConcurrentSkipListMap<>();
+    private static DBService DB_SERVICE;
+
+    public static void setDbService(DBService dbService) {
+        DB_SERVICE = dbService;
+    }
 
     /**
      *
@@ -21,17 +24,16 @@ public class AccountService {
      * @throws ExistingUserException
      */
     public static void addUser(@NotNull String login, @NotNull String password) {
-        if (userProfileMap.putIfAbsent(login, new UserProfile(login, password)) != null)
-            throw new ExistingUserException();
+        DB_SERVICE.addUser(login, password);
     }
 
     @Nullable
     public static UserProfile getUser(String login) {
-        return userProfileMap.get(login);
+        return DB_SERVICE.getUser(login);
     }
 
     public static boolean checkCredentials(@NotNull String login, @NotNull String password) {
-        UserProfile userProfile = userProfileMap.get(login);
+        UserProfile userProfile = DB_SERVICE.getUser(login);
         return userProfile != null && password.equals(userProfile.getPassword());
     }
 
