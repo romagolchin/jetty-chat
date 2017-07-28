@@ -1,14 +1,13 @@
 package servlets;
 
 import accounts.AccountService;
+import accounts.UserProfile;
 import org.jetbrains.annotations.Nullable;
 import templater.PageGenerator;
 import util.Constants;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -32,8 +31,16 @@ public class SignInServlet extends HttpServlet {
         if (login == null || password == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else if (AccountService.checkCredentials(login, password)) {
+            HttpSession session = req.getSession();
+            final String logString = "SigInServlet session id ";
+            if (session != null) {
+                System.out.println(logString + session.getId());
+                AccountService.signInUser(session, new UserProfile(login, password));
+            } else System.out.println(logString + null);
+            resp.addCookie(new Cookie("user", login));
             resp.getWriter().print("Authorized: " + login);
             resp.setStatus(HttpServletResponse.SC_OK);
+            resp.sendRedirect("/chat");
         } else {
             resp.getWriter().print("Unauthorized");
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

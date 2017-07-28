@@ -1,6 +1,8 @@
 package dbService;
 
 import accounts.UserProfile;
+import dbService.dao.MessageDAO;
+import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
 import exceptions.ExistingUserException;
 import org.hibernate.SessionFactory;
@@ -9,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
 import dbService.dao.UserDAO;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,8 +24,14 @@ import org.jetbrains.annotations.Nullable;
 public class DBServiceImpl implements DBService {
     private final SessionFactory sessionFactory;
 
-    public DBServiceImpl() {
+    private DBServiceImpl() {
         sessionFactory = SessionFactoryHolder.getSessionFactory();
+    }
+
+    private static DBServiceImpl service = new DBServiceImpl();
+
+    public static DBServiceImpl getInstance() {
+        return service;
     }
 
     public @Nullable Serializable addUser(@NotNull String login, @NotNull String password) {
@@ -35,4 +46,13 @@ public class DBServiceImpl implements DBService {
         return dataSet == null ? null : new UserProfile(dataSet.getLogin(), dataSet.getPassword());
     }
 
+    @Override
+    public void addMessage(@NotNull String message, @NotNull Date date, @NotNull String user) {
+        new MessageDAO(sessionFactory).save(new MessageDataSet(-1, message, date, user));
+    }
+
+    @Override
+    public @NotNull List<MessageDataSet> getAllMessages() {
+        return new MessageDAO(sessionFactory).getAll();
+    }
 }

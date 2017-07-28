@@ -1,12 +1,12 @@
 ﻿<html>
 <head>
     <meta charset="UTF-8"/>
-    <title>L4.1: Jetty WebSocket Chat</title>
+    <title>Jetty WebSocket Chat</title>
     <script type="text/javascript">
         var ws;
 
         function init() {
-            ws = new WebSocket("ws://localhost:8080/chat");
+            ws = new WebSocket("ws://localhost:8080/chatSocket");
             ws.onopen = function (event) {
 
             }
@@ -21,22 +21,23 @@
 
         function sendMessage() {
             var messageField = document.getElementById("message");
-            var userNameField = document.getElementById("username");
-            var message = userNameField.value + ":" + messageField.value;
-            ws.send(message);
+            // var userNameField = document.getElementById("username");
+            //var message = messageField.value;
+            ws.send(messageField.value);
             messageField.value = '';
         }
     </script>
 </head>
 <body onload="init();">
+<a href="/home">Home</a>
 <div id="body">
-    <div id="menu">
-        <p class="welcome">
-            Welcome, <input id="username" value="anonymous"/>
-        </p>
+    <!--<div id="menu">-->
+        <!--<p class="welcome">-->
+            <!--Welcome, <input id="username" value="anonymous"/>-->
+        <!--</p>-->
 
-        <div style="clear: both"></div>
-    </div>
+        <!--<div style="clear: both"></div>-->
+    <!--</div>-->
 
     <div id="chatbox">
         <textarea id="messages" rows="20" cols="50" readonly="readonly"></textarea>

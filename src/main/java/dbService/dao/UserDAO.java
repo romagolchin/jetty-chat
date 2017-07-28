@@ -17,27 +17,11 @@ import java.io.Serializable;
 /**
  * @author Roman Golchin (romagolchin@gmail.com)
  */
-public class UserDAO {
-
-    private final @NotNull SessionFactory factory;
+public class UserDAO extends AbstractDAO<UserDataSet> {
 
     public UserDAO(@NotNull SessionFactory factory) {
-        this.factory = factory;
-    }
-
-    public Serializable save(@NotNull UserDataSet dataSet) {
-        try (Session session = factory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Serializable id = session.save(dataSet);
-            transaction.commit();
-            return id;
-        }
-    }
-
-    public UserDataSet load(long id) {
-        try (Session session = factory.openSession()) {
-            return session.get(UserDataSet.class, id);
-        }
+        super(factory);
+        dataSetClass = UserDataSet.class;
     }
 
     public @Nullable UserDataSet getUser(@NotNull String login) {

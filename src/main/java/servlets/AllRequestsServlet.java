@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import static util.Constants.*;
 
 /**
  * @author v.chibrikov
@@ -22,12 +23,10 @@ public class AllRequestsServlet extends HttpServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
 
-        Map<String, Object> pageVariables = createPageVariablesMap(request);
-        pageVariables.put("message", "");
 
-        response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+        response.getWriter().println(PageGenerator.instance().getPage("not_found.html"));
 
-        response.setContentType("text/html;charset=utf-8");
+        response.setContentType(HTML_CONTENT_TYPE);
         response.setStatus(HttpServletResponse.SC_OK);
 
     }
@@ -38,7 +37,7 @@ public class AllRequestsServlet extends HttpServlet {
 
         String message = request.getParameter("message");
 
-        response.setContentType("text/html;charset=utf-8");
+        response.setContentType(HTML_CONTENT_TYPE);
 
         if (message == null || message.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);

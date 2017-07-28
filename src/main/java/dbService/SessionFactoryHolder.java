@@ -1,5 +1,6 @@
 package dbService;
 
+import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -36,7 +37,7 @@ public class SessionFactoryHolder {
 
     private static Configuration getH2Configuration() {
         Configuration configuration = new Configuration();
-        return configuration.configure("hibernate.cfg.xml").addAnnotatedClass(UserDataSet.class);
+        return configuration.configure("hibernate.cfg.xml").addAnnotatedClass(UserDataSet.class).addAnnotatedClass(MessageDataSet.class);
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
