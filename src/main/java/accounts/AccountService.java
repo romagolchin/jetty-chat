@@ -1,71 +1,62 @@
 package accounts;
 
-import dbService.DBService;
-import dbService.DBServiceImpl;
-import exceptions.ExistingUserException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Supports actions with accounts, such as adding one, signing in, signing out.
+ *
  * @author Roman Golchin (romagolchin@gmail.com)
  */
-public class AccountService {
-
-    private static DBService DB_SERVICE = DBServiceImpl.getInstance();
-
-    private static final Map<HttpSession, UserProfile> sessionMap = new ConcurrentHashMap<>();
+public interface AccountService {
 
     /**
+     * Add user if the login is not already used and both login and password are valid
+     *
      * @param login
      * @param password
-     * @throws ExistingUserException
+     * @throws IllegalArgumentException if login or password are invalid
+     * @throws ExistingUserException if user with the login already exists
      */
-    public static void addUser(@NotNull String login, @NotNull String password) {
-        System.out.println(login + " " + password);
-        DB_SERVICE.addUser(login, password);
-    }
+    void signUp(@NotNull String login, @NotNull String password);
 
-    @Nullable
-    public static UserProfile getUser(String login) {
-        return DB_SERVICE.getUser(login);
-    }
+    /**
+     * Check if user exists
+     *
+     * @param login
+     * @return
+     */
+    boolean doesUserExist(@NotNull String login);
 
-    public static boolean checkCredentials(@NotNull String login, @NotNull String password) {
-        UserProfile userProfile = DB_SERVICE.getUser(login);
-        return userProfile != null && password.equals(userProfile.getPassword());
-    }
+    /**
+     * Check if user is signed in. This method and others that take a session as an argument are required to synchronize on session
+     *
+     * @param session
+     * @return
+     */
+    boolean isSignedIn(@NotNull HttpSession session);
 
-    public static boolean isSignedIn(HttpSession session) {
-        return getProfileBySession(session) != null;
-    }
+    /**
+     * Sign in user associated with session.
+     *
+     * @param session
+     * @param login
+     * @param password
+     * @return
+     */
+    boolean signIn(@NotNull HttpSession session, @NotNull String login, @NotNull String password);
 
-    public static void signInUser(HttpSession session, UserProfile profile) {
-        sessionMap.put(session, profile);
-    }
+    /**
+     * Sign out user associated with session. All subsequent calls to methods  {@link #isSignedIn(HttpSession)}, {@link #signIn(HttpSession, String, String)}, {@link #signOut(HttpSession)} return false and calls to {@link #getProfileBySession(HttpSession)} return null, as seesion gets invalidated.
+     * @param session
+     * @return true if sign-in was successful, false otherwise
+     */
+    boolean signOut(@NotNull HttpSession session);
 
-    public static boolean singOutUser(HttpSession session) {
-        // the commented code signs user out from all sessions, which is not usually needed
-//        UserProfile profile = sessionMap.get(session);
-//        boolean ret = false;
-//        for (HttpSession hs : sessionMap.keySet()) {
-//            if (sessionMap.get(hs).equals(profile)) {
-//                sessionMap.remove(hs);
-//                ret = true;
-//            }
-//        }
-//        return ret;
-        boolean ret = sessionMap.containsKey(session);
-        sessionMap.remove(session);
-        session.invalidate();
-        return ret;
-    }
-
-    public static UserProfile getProfileBySession(HttpSession session) {
-        return sessionMap.get(session);
-    }
+    /**
+     * Get user associated with session
+     */
+    UserProfile getProfileBySession(@NotNull HttpSession session);
 
 }

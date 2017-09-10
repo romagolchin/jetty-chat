@@ -1,27 +1,29 @@
 package servlets;
 
-import accounts.AccountService;
-import chat.ChatService;
-import chat.ChatServiceImpl;
 import chat.ChatWebSocket;
+import context.Context;
 import dbService.DBService;
-import dbService.DBServiceImpl;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
-import java.net.HttpCookie;
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Roman Golchin (romagolchin@gmail.com)
  */
-@WebServlet(name = "ChatWebSocketServlet", urlPatterns = "/chatSocket")
+@WebServlet(name = "ChatWebSocketServlet", urlPatterns = "/chatSocket?chat=*")
 public class ChatWebSocketServlet extends WebSocketServlet {
-    private static ChatService chatService = new ChatServiceImpl();
-    private static DBService dbService = DBServiceImpl.getInstance();
 
+    private Context context;
+
+    public ChatWebSocketServlet() {
+        context = Context.getInstance();
+    }
 
 
     @Override
@@ -29,22 +31,18 @@ public class ChatWebSocketServlet extends WebSocketServlet {
         factory.getPolicy().setIdleTimeout(10_000_000);
         factory.setCreator((req, resp) -> {
             HttpSession session = req.getSession();
-            final String logString = "SocketServlet session id ";
-            if (session != null) {
-                System.out.println(logString + session.getId());
-            } else System.out.println(logString + null);
-            String login = AccountService.getProfileBySession(session).getLogin();
-            System.out.println("session = " + session + "login = " + login);
-//            String login = null;
-//            List<HttpCookie> cookies = req.getCookies();
-//            for (HttpCookie cookie : cookies) {
-//                if ("user".equals(cookie.getName())) {
-//                    login = cookie.getValue();
-//                    break;
-//                }
-//            }
-//            System.out.println("login = " + login);
-            return new ChatWebSocket(chatService, dbService, login);
+            synchronized (session) {
+                final String logString = "SocketServlet session id ";
+                System.out.println(logString + (session.getId()));
+                String login = context.getAccountService().getProfileBySession(session).getLogin();
+                System.out.println("session = " + session + "login = " + login);
+                final DBService dbService = context.getDbService();
+                final String requestString = req.getRequestURI().toString();
+                final int beginIndex = requestString.indexOf('?');
+                final int endIndex = requestString.indexOf('=');
+                return new ChatWebSocket(context.getChatService(), dbService, dbService.getUser(login),
+                        beginIndex != -1 && endIndex != -1 ? requestString.substring(beginIndex, endIndex) : null);
+            }
         });
     }
 }

@@ -10,12 +10,11 @@ public interface ChatService {
      */
     void addSocket(ChatWebSocket webSocket);
 
-
     void removeSocket(ChatWebSocket webSocket);
 
     /**
-     * Send message to all added sockets
+     * Send message to all added sockets in a chat
      * @param message
      */
-    void broadcastMessage(String message);
+    void broadcastMessage(String chatName, String message);
 }

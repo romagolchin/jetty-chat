@@ -3,7 +3,6 @@ package servlets;
 import templater.PageGenerator;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -18,13 +17,13 @@ import static util.Constants.*;
  *         <p>
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
  */
-public class AllRequestsServlet extends HttpServlet {
+public class AllRequestsServlet extends CommonServlet {
 
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
 
 
-        response.getWriter().println(PageGenerator.instance().getPage("not_found.html"));
+        response.getWriter().println(PageGenerator.getInstance().getPage("not_found.html"));
 
         response.setContentType(HTML_CONTENT_TYPE);
         response.setStatus(HttpServletResponse.SC_OK);
@@ -46,7 +45,7 @@ public class AllRequestsServlet extends HttpServlet {
         }
         pageVariables.put("message", message == null ? "" : message);
 
-        response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+        response.getWriter().println(PageGenerator.getInstance().getPage("page.html", pageVariables));
     }
 
     private static Map<String, Object> createPageVariablesMap(HttpServletRequest request) {

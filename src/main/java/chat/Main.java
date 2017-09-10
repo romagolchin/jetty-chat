@@ -1,5 +1,10 @@
 package chat;
 
+import accounts.AccountService;
+import accounts.AccountServiceImpl;
+import context.Context;
+import dbService.DBServiceImpl;
+import dbService.SessionFactoryHolder;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 
@@ -12,6 +17,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import servlets.*;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,17 +29,12 @@ public class Main {
         Server server = new Server(8080);
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        contextHandler.addServlet(ChatWebSocketServlet.class, "/chatSocket");
         contextHandler.addServlet(HomeServlet.class, "/home");
         contextHandler.addServlet(ChatServlet.class, "/chat");
-        contextHandler.addServlet(new ServletHolder(new SignInServlet()), "/signin");
-        contextHandler.addServlet(new ServletHolder(new SignOutServlet()), "/signout");
-        contextHandler.addServlet(new ServletHolder(new SignUpServlet()), "/signup");
+        contextHandler.addServlet(SignInServlet.class, "/signin");
+        contextHandler.addServlet(SignOutServlet.class, "/signout");
+        contextHandler.addServlet(SignUpServlet.class, "/signup");
         contextHandler.addServlet(AllRequestsServlet.class, "/*");
-//        contextHandler.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-//        contextHandler.setWelcomeFiles(new String[]{"welcome.html"});
-
-//        System.out.println(Stream.of(contextHandler.getWelcomeFiles()).collect(Collectors.joining(", ", "[", "]")));
 
         SessionHandler sessionHandler = new SessionHandler();
         sessionHandler.setUsingCookies(false);
@@ -50,6 +51,12 @@ public class Main {
         server.setHandler(handlers);
 
         System.err.println("Server started");
+        Context context = Context.getInstance();
+        SessionFactoryHolder.configure("hibernate.cfg.xml");
+        DBServiceImpl dbService = new DBServiceImpl(SessionFactoryHolder.getSessionFactory());
+        context.setDbService(dbService);
+        context.setAccountService(new AccountServiceImpl(dbService));
+        context.setChatService(new ChatServiceImpl());
         server.start();
         server.join();
     }

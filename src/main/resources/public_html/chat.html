@@ -6,7 +6,7 @@
         var ws;
 
         function init() {
-            ws = new WebSocket("ws://localhost:8080/chatSocket");
+            ws = new WebSocket("ws://localhost:8080/chatSocket?chat=${chat}");
             ws.onopen = function (event) {
 
             }
@@ -17,7 +17,7 @@
             ws.onclose = function (event) {
 
             }
-        };
+        }
 
         function sendMessage() {
             var messageField = document.getElementById("message");
@@ -31,14 +31,6 @@
 <body onload="init();">
 <a href="/home">Home</a>
 <div id="body">
-    <!--<div id="menu">-->
-        <!--<p class="welcome">-->
-            <!--Welcome, <input id="username" value="anonymous"/>-->
-        <!--</p>-->
-
-        <!--<div style="clear: both"></div>-->
-    <!--</div>-->
-
     <div id="chatbox">
         <textarea id="messages" rows="20" cols="50" readonly="readonly"></textarea>
     </div>

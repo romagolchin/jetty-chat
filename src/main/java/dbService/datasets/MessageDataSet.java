@@ -1,6 +1,7 @@
 package dbService.datasets;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -11,24 +12,30 @@ import java.util.Date;
 public class MessageDataSet implements DataSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "text")
     private String text;
 
     @Column(name = "date")
-    private Date date;
+    private Timestamp timestamp;
 
-    @Column(name = "user")
-    private String user;
+    @ManyToOne
+    private UserDataSet user;
 
     public MessageDataSet() {
     }
 
-    public MessageDataSet(long id, String text, Date date, String user) {
+    public MessageDataSet(long id, String text, Date date, UserDataSet user) {
         this.id = id;
         this.text = text;
-        this.date = date;
+        this.timestamp = new Timestamp(date.getTime());
+        this.user = user;
+    }
+
+    public MessageDataSet(String text, Date date, UserDataSet user) {
+        this.text = text;
+        this.timestamp = new Timestamp(date.getTime());
         this.user = user;
     }
 
@@ -40,17 +47,18 @@ public class MessageDataSet implements DataSet {
         return text;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public String getUser() {
+    public UserDataSet getUser() {
         return user;
     }
 
 
     @Override
     public String toString() {
+        Date date = new Date(timestamp.getTime());
         return user + "\n" + text + "\n" + date + "\n";
     }
 }

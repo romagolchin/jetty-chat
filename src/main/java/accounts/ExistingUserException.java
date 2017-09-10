@@ -1,4 +1,4 @@
-package exceptions;
+package accounts;
 
 /**
  * @author Roman Golchin (romagolchin@gmail.com)
@@ -19,5 +19,10 @@ public class ExistingUserException extends IllegalArgumentException {
 
     public ExistingUserException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String getMessage() {
+        return String.format(ERROR_FMT, super.getMessage());
     }
 }

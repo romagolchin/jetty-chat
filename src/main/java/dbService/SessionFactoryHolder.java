@@ -1,5 +1,6 @@
 package dbService;
 
+import dbService.datasets.ChatDataSet;
 import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
 import org.hibernate.SessionFactory;
@@ -16,8 +17,15 @@ public class SessionFactoryHolder {
 
     private static volatile SessionFactory sessionFactory;
 
+    private static String configFile;
+
+
+    public static void configure(String configFile) {
+        SessionFactoryHolder.configFile = configFile;
+    }
+
     private static void setSessionFactory() {
-        sessionFactory = createSessionFactory(getH2Configuration());
+        sessionFactory = createSessionFactory(getConfiguration());
     }
 
     public static SessionFactory getSessionFactory() {
@@ -35,9 +43,11 @@ public class SessionFactoryHolder {
             sessionFactory.close();
     }
 
-    private static Configuration getH2Configuration() {
+    private static Configuration getConfiguration() {
         Configuration configuration = new Configuration();
-        return configuration.configure("hibernate.cfg.xml").addAnnotatedClass(UserDataSet.class).addAnnotatedClass(MessageDataSet.class);
+        return configuration.configure(configFile).addAnnotatedClass(UserDataSet.class)
+                .addAnnotatedClass(MessageDataSet.class)
+                .addAnnotatedClass(ChatDataSet.class);
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {

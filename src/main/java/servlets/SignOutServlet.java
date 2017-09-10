@@ -1,21 +1,19 @@
 package servlets;
 
-import accounts.AccountService;
 import templater.PageGenerator;
 import util.Constants;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.stream.Stream;
 
 /**
  * @author Roman Golchin (romagolchin@gmail.com)
  */
-public class SignOutServlet extends HttpServlet {
+public class SignOutServlet extends CommonServlet {
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -25,23 +23,16 @@ public class SignOutServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        Cookie[] cookies = req.getCookies();
-//        Cookie loginCookie = null;
-//        for (Cookie cookie : cookies) {
-//            if ("user".equals(cookie.getName()))
-//                loginCookie = cookie;
-//        }
-//        if (loginCookie != null) {
-//            loginCookie.setMaxAge(0);
-//            resp.addCookie(loginCookie);
-//        }
         resp.setContentType(Constants.HTML_CONTENT_TYPE);
-        if (!AccountService.singOutUser(req.getSession())) {
-            resp.getWriter().print(PageGenerator.instance().getPage("unauthorized.html"));
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        } else {
-            resp.sendRedirect("/");
-            resp.setStatus(HttpServletResponse.SC_OK);
+        final HttpSession session = req.getSession();
+        synchronized (session) {
+            if (!context.getAccountService().signOut(session)) {
+                resp.getWriter().print(PageGenerator.getInstance().getPage("static/unauthorized.html"));
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            } else {
+                resp.sendRedirect("/");
+                resp.setStatus(HttpServletResponse.SC_OK);
+            }
         }
     }
 }
