@@ -1,0 +1,17 @@
+/home/roman/IdeaProjects/server/src/main/java/chat/Main.java
+/home/roman/IdeaProjects/server/src/main/java/dbService/DBService.java
+/home/roman/IdeaProjects/server/src/main/java/accounts/UserProfile.java
+/home/roman/IdeaProjects/server/src/main/java/chat/EchoWebSocket.java
+/home/roman/IdeaProjects/server/src/main/java/servlets/MirrorServlet.java
+/home/roman/IdeaProjects/server/src/main/java/exceptions/ExistingUserException.java
+/home/roman/IdeaProjects/server/src/main/java/dbService/dao/UserDAO.java
+/home/roman/IdeaProjects/server/src/main/java/servlets/SignInServlet.java
+/home/roman/IdeaProjects/server/src/main/java/util/Constants.java
+/home/roman/IdeaProjects/server/src/main/java/servlets/AllRequestsServlet.java
+/home/roman/IdeaProjects/server/src/main/java/dbService/DBServiceImpl.java
+/home/roman/IdeaProjects/server/src/main/java/servlets/SignUpServlet.java
+/home/roman/IdeaProjects/server/src/main/java/accounts/AccountService.java
+/home/roman/IdeaProjects/server/src/main/java/dbService/SessionFactoryHolder.java
+/home/roman/IdeaProjects/server/src/main/java/dbService/datasets/UserDataSet.java
+/home/roman/IdeaProjects/server/src/main/java/templater/PageGenerator.java
+/home/roman/IdeaProjects/server/src/main/java/chat/EchoWebSocketServlet.java
