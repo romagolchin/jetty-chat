@@ -4,6 +4,8 @@ import dbService.datasets.ChatDataSet;
 import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -25,7 +27,7 @@ public class SessionFactoryHolder {
     }
 
     private static void setSessionFactory() {
-        sessionFactory = createSessionFactory(getConfiguration());
+        sessionFactory = createSessionFactory();
     }
 
     public static SessionFactory getSessionFactory() {
@@ -38,22 +40,14 @@ public class SessionFactoryHolder {
         return sessionFactory;
     }
 
-    public static void closeSessionFactory() throws IOException {
-        if (sessionFactory != null)
-            sessionFactory.close();
-    }
-
-    private static Configuration getConfiguration() {
-        Configuration configuration = new Configuration();
-        return configuration.configure(configFile).addAnnotatedClass(UserDataSet.class)
-                .addAnnotatedClass(MessageDataSet.class)
-                .addAnnotatedClass(ChatDataSet.class);
-    }
-
-    private static SessionFactory createSessionFactory(Configuration configuration) {
+    private static SessionFactory createSessionFactory() {
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
-        builder.applySettings(configuration.getProperties());
-        ServiceRegistry registry = builder.build();
-        return configuration.buildSessionFactory(registry);
+        ServiceRegistry serviceRegistry = builder.configure(configFile).build();
+        Metadata metadata = new MetadataSources(serviceRegistry)
+                .addAnnotatedClass(UserDataSet.class)
+                .addAnnotatedClass(MessageDataSet.class)
+                .addAnnotatedClass(ChatDataSet.class)
+                        .getMetadataBuilder().build();
+        return metadata.getSessionFactoryBuilder().build();
     }
 }
