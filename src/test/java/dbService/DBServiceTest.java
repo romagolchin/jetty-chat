@@ -3,6 +3,8 @@ package dbService;
 import dbService.datasets.ChatDataSet;
 import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
+import org.dbunit.JdbcDatabaseTester;
+import org.dbunit.operation.DatabaseOperation;
 import org.junit.*;
 
 import java.io.Serializable;
@@ -23,16 +25,16 @@ public class DBServiceTest {
 
     
     // TODO pass dataset to constructor
-//    @Rule
-//    public DBUnit dbUnit;
-//
-//    public DBServiceTest() {
-//        try {
-//            dbUnit = new DBUnit(new JdbcDatabaseTester("org.h2.Driver", "jdbc:h2:mem:", "sa", "sa"), DatabaseOperation.NONE, DatabaseOperation.DELETE_ALL);
-//        } catch (ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    @Rule
+    public DBUnit dbUnit;
+
+    public DBServiceTest() {
+        try {
+            dbUnit = new DBUnit(new JdbcDatabaseTester("org.h2.Driver", "jdbc:h2:mem:", "sa", "sa"), DatabaseOperation.NONE, DatabaseOperation.DELETE_ALL);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     @Before
