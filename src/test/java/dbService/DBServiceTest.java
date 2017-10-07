@@ -13,8 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static util.Constants.*;
 
 /**
@@ -23,7 +22,7 @@ import static util.Constants.*;
 public class DBServiceTest {
     private DBService dbService;
 
-    
+
     // TODO pass dataset to constructor
     @Rule
     public DBUnit dbUnit;
@@ -39,7 +38,7 @@ public class DBServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        SessionFactoryHolder.configure("hibernate_h2_mem.cfg.xml");
+        SessionFactoryHolder.configure("hibernate_test.cfg.xml");
         dbService = new DBServiceImpl(SessionFactoryHolder.getSessionFactory());
     }
 
@@ -86,52 +85,132 @@ public class DBServiceTest {
 
     @Test
     public void addChat() throws Exception {
-        dbService.addUser(LOGIN, PASSWORD);
+        UserDataSet user = dbService.addUser(LOGIN, PASSWORD);
         final String otherLogin = LOGIN + "1";
-        dbService.addUser(otherLogin, PASSWORD);
+        UserDataSet other = dbService.addUser(otherLogin, PASSWORD);
         final ChatDataSet chat = new ChatDataSet(new Date(), "chat");
-        final Set<UserDataSet> singleton = Collections.singleton(dbService.getUser(LOGIN));
+        final Set<UserDataSet> singleton = Collections.singleton(user);
         Serializable id = dbService.addUsersToChat(chat, singleton);
-        dbService.addUsersToChat(dbService.getChat(id), Collections.singleton(dbService.getUser(otherLogin)));
+        dbService.addUsersToChat(chat, Collections.singleton(other));
         final ChatDataSet loadedChat = dbService.getChat(id);
         System.out.println(loadedChat.getCreationStamp());
-        Set<UserDataSet> userDataSets = dbService.getUsersInChat(id);
+        Set<UserDataSet> userDataSets = dbService.getUsersInChat(loadedChat);
         System.out.println(userDataSets);
         assertTrue(userDataSets.size() == 2);
     }
 
     @Test
     public void concurrentlyAddToChat() throws Exception {
-        dbService.addUser(LOGIN, PASSWORD);
-        Set<UserDataSet> singleton = Collections.singleton(dbService.getUser(LOGIN));
+        // add 2 users
+        // add first user to 2 new chats
+        // add second user to both chats in 2 threads
+        Set<UserDataSet> singleton = Collections.singleton(dbService.addUser(LOGIN, PASSWORD));
         final String otherLogin = LOGIN + "1";
-        dbService.addUser(otherLogin, PASSWORD);
-        final UserDataSet user = dbService.getUser(otherLogin);
-        Set<UserDataSet> otherSingleton = Collections.singleton(user);
-        Serializable firstId = dbService.addUsersToChat(new ChatDataSet(new Date(), "chat1"), singleton);
-        Serializable secondId = dbService.addUsersToChat(new ChatDataSet(new Date(), "chat2"), singleton);
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        executorService.submit(() ->
-                dbService.addUsersToChat(dbService.getChat(firstId), otherSingleton));
-        executorService.submit(() ->
-                dbService.addUsersToChat(dbService.getChat(secondId), otherSingleton));
+        final UserDataSet otherUser = dbService.addUser(otherLogin, PASSWORD);
+        Set<UserDataSet> otherSingleton = Collections.singleton(otherUser);
+        Set<ChatDataSet> chats = new HashSet<>();
+        final int N = 100;
+        for (int i = 0; i < N; i++) {
+            ChatDataSet chat = new ChatDataSet(new Date(), "chat" + i);
+            chats.add(chat);
+            dbService.addUsersToChat(chat, singleton);
+        }
+//        Serializable firstId = dbService.addUsersToChat(new ChatDataSet(new Date(), "chat1"), singleton);
+//        Serializable secondId = dbService.addUsersToChat(new ChatDataSet(new Date(), "chat2"), singleton);
+        ExecutorService executorService = Executors.newFixedThreadPool(N);
 //        executorService.submit(() ->
-//                System.out.println("stamp " + dbService.getChat(firstId).getCreationStamp()));
+//                dbService.addUsersToChat(dbService.getChat(firstId), otherSingleton));
 //        executorService.submit(() ->
-//                System.out.println("stamp2 " + dbService.getChat(secondId).getCreationStamp()));
-
+//                dbService.addUsersToChat(dbService.getChat(secondId), otherSingleton));
+        for (ChatDataSet chat : chats) {
+            executorService.submit(() -> dbService.addUsersToChat(chat, otherSingleton));
+        }
         executorService.shutdown();
         executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-//        dbService.addChat(dbService.getChat(firstId), otherSingleton);
-//        dbService.addChat(dbService.getChat(secondId), otherSingleton);
-        System.out.println("first " + dbService.getUsersInChat(firstId));
-        System.out.println("second " + dbService.getUsersInChat(secondId));
-        if (user != null) {
-            final Set<ChatDataSet> chatsOfUser = dbService.getChatsOfUser(user);
-            System.out.println(chatsOfUser);
-            assertTrue(chatsOfUser.size() == 2);
+        assertNotNull(otherUser);
+        final Set<ChatDataSet> chatsOfUser = dbService.getChatsOfUser(otherUser);
+        System.out.println(chatsOfUser);
+        assertEquals(N, chatsOfUser.size());
+        for (ChatDataSet chat : chats) {
+            assertEquals(2, dbService.getUsersInChat(chat).size());
         }
-        System.out.printf("hash1 %x\n", dbService.getChat(firstId).hashCode());
-        System.out.printf("hash2 %x\n", dbService.getChat(secondId).hashCode());
+    }
+
+    @Test
+    public void removeFromChat() throws Exception {
+        final UserDataSet user = dbService.addUser(LOGIN, PASSWORD);
+        Set<UserDataSet> singleton = Collections.singleton(user);
+        ChatDataSet chat = new ChatDataSet(new Date(), "chat");
+        dbService.addUsersToChat(chat, singleton);
+        dbService.removeUsersFromChat(chat, singleton);
+        assertTrue(dbService.getChatsOfUser(user).isEmpty());
+        assertTrue(dbService.getUsersInChat(chat).isEmpty());
+    }
+
+    @Test
+    public void concurrentlyRemoveFromChat() throws Exception {
+        Set<UserDataSet> users = new HashSet<>();
+        Set<UserDataSet> firstHalf = new HashSet<>();
+        Set<UserDataSet> secondHalf = new HashSet<>();
+        final int N = 10;
+        for (int i = 0; i < N; i++) {
+            final UserDataSet user = dbService.addUser(LOGIN + i, PASSWORD);
+            users.add(user);
+            if (i < N / 2)
+                firstHalf.add(user);
+            else secondHalf.add(user);
+        }
+        final ChatDataSet chat = new ChatDataSet(new Date(), "chat");
+        dbService.addUsersToChat(chat, users);
+//        ExecutorService executorService = Executors.newFixedThreadPool(2);
+//        executorService.submit(() -> dbService.removeUsersFromChat(chat, firstHalf));
+//        executorService.submit(() -> dbService.removeUsersFromChat(chat, secondHalf));
+        Thread t1 = new Thread(() -> dbService.removeUsersFromChat(chat, firstHalf));
+        Thread t2 = new Thread(() -> dbService.removeUsersFromChat(chat, secondHalf));
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+//        executorService.shutdown();
+//        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
+//        executorService.awaitTermination(2, TimeUnit.SECONDS);
+        final Set<UserDataSet> usersInChat = dbService.getUsersInChat(chat);
+        System.out.println(usersInChat.size());
+        assertTrue(usersInChat.isEmpty());
+        for (UserDataSet user : users) {
+            final Set<ChatDataSet> chatsOfUser = dbService.getChatsOfUser(user);
+            System.out.println(chatsOfUser.size());
+            assertTrue(chatsOfUser.isEmpty());
+        }
+    }
+
+    @Test
+    public void concurrentlyRemoveFromMultipleChats() throws Exception {
+        UserDataSet user = dbService.addUser(LOGIN, PASSWORD);
+        final int N = 100;
+        List<ChatDataSet> chats = new ArrayList<>();
+        Set<UserDataSet> singleton = Collections.singleton(user);
+        for (int i = 0; i < N; i++) {
+            ChatDataSet chat = new ChatDataSet(new Date(), "chat" + i);
+            chats.add(chat);
+            dbService.addUsersToChat(chat, singleton);
+        }
+        Thread t1 = new Thread(() -> {
+            for (int i = 0; i < N / 2; i++) {
+                dbService.removeUsersFromChat(chats.get(i), singleton);
+            }
+        });
+        Thread t2 = new Thread(() -> {
+            for (int i = N / 2; i < N; i++) {
+                dbService.removeUsersFromChat(chats.get(i), singleton);
+            }
+        });
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+        final Set<ChatDataSet> chatsOfUser = dbService.getChatsOfUser(user);
+        System.out.println("size = " + chatsOfUser.size());
+        assertTrue(chatsOfUser.isEmpty());
     }
 }

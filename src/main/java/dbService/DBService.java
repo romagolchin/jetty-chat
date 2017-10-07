@@ -3,7 +3,6 @@ package dbService;
 import dbService.datasets.ChatDataSet;
 import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
-import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +15,7 @@ import java.util.Set;
  */
 public interface DBService {
 
-    void addUser(@NotNull String login, @NotNull String password);
+    UserDataSet addUser(@NotNull String login, @NotNull String password);
 
     @Nullable UserDataSet getUser(@NotNull String login);
 
@@ -28,9 +27,11 @@ public interface DBService {
 
     Serializable addUsersToChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets);
 
+    void removeUsersFromChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets);
+
     ChatDataSet getChat(Serializable id);
 
-    Set<UserDataSet> getUsersInChat(@NotNull Serializable chatId);
+    Set<UserDataSet> getUsersInChat(@NotNull ChatDataSet chat);
 
     Set<ChatDataSet> getChatsOfUser(@NotNull UserDataSet userDataSet);
 

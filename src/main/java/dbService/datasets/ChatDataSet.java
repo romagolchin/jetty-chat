@@ -59,8 +59,8 @@ public class ChatDataSet implements DataSet {
     }
 
     public void removeUser(UserDataSet userDataSet) {
-        users.remove(userDataSet);
         userDataSet.getChats().remove(this);
+        users.remove(userDataSet);
     }
 
 

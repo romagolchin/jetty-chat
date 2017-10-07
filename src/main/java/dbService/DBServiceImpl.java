@@ -27,9 +27,11 @@ public class DBServiceImpl implements DBService {
     }
 
 
-    public void addUser(@NotNull String login, @NotNull String password) {
+    public UserDataSet addUser(@NotNull String login, @NotNull String password) {
         UserDAO dao = new UserDAO(sessionFactory);
-        dao.save(new UserDataSet(login, password));
+        final UserDataSet userDataSet = new UserDataSet(login, password);
+        dao.save(userDataSet);
+        return userDataSet;
     }
 
     public @Nullable UserDataSet getUser(@NotNull String login) {
@@ -59,13 +61,18 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
+    public void removeUsersFromChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets) {
+        new ChatDAO(sessionFactory).removeUsers(chatDataSet, userDataSets);
+    }
+
+    @Override
     public ChatDataSet getChat(Serializable id) {
         return new ChatDAO(sessionFactory).load(id);
     }
 
     @Override
-    public Set<UserDataSet> getUsersInChat(@NotNull Serializable chatId) {
-        return new ChatDAO(sessionFactory).getUsers(chatId);
+    public Set<UserDataSet> getUsersInChat(@NotNull ChatDataSet chat) {
+        return new ChatDAO(sessionFactory).getUsers(chat);
     }
 
     @Override

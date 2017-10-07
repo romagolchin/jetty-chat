@@ -21,22 +21,44 @@ public class ChatDAO extends AbstractDAO<ChatDataSet> {
     }
 
     public Serializable addUsers(@NotNull ChatDataSet chatDataSet, Set<UserDataSet> userDataSets) {
-        return functionWithSession(session -> {
-            System.out.println("session " + session.hashCode());
-            session.saveOrUpdate(chatDataSet);
-            session.flush();
-            for (UserDataSet userDataSet : userDataSets) {
-                session.update(userDataSet);
-                chatDataSet.addUser(userDataSet);
-            }
-            return chatDataSet.getId();
-        });
+        synchronized (userDataSets) {
+            return functionWithSession(session -> {
+                session.saveOrUpdate(chatDataSet);
+                session.flush();
+                for (UserDataSet userDataSet : userDataSets) {
+                    session.update(userDataSet);
+                    chatDataSet.addUser(userDataSet);
+                }
+                return chatDataSet.getId();
+            });
+        }
     }
 
 
-    public Set<UserDataSet> getUsers(@NotNull Serializable chatId) {
+    public Serializable removeUsers(@NotNull ChatDataSet chatDataSet, Set<UserDataSet> userDataSets) {
+        // BROKEN as Hibernate does not guarantee that in different sessions that there is a unique instance corresponding to a row
+        synchronized (chatDataSet) {
+            // BROKEN as we could take two joint sets, they are obviously not the same object
+            synchronized (userDataSets) {
+                return functionWithSession(session -> {
+                    System.out.println("removing " + userDataSets.size() + " users " + " in session " + session.hashCode());
+                    session.update(chatDataSet);
+                    session.flush();
+                    for (UserDataSet userDataSet : userDataSets) {
+                        session.update(userDataSet);
+                        chatDataSet.removeUser(userDataSet);
+                    }
+                    return chatDataSet.getId();
+                });
+            }
+        }
+
+    }
+
+    public Set<UserDataSet> getUsers(@NotNull ChatDataSet chat) {
         try (Session session = factory.openSession()) {
-            return new HashSet<>(session.get(dataSetClass, chatId).getUsers());
+            session.update(chat);
+            return new HashSet<>(chat.getUsers());
         }
     }
 

@@ -29,7 +29,8 @@ public abstract class AbstractDAO<T extends DataSet> {
     }
 
     <S> S functionWithSession(Function<Session, S> fun) {
-        try (Session session = factory.openSession()) {
+        try {
+            Session session = factory.getCurrentSession();
             Transaction transaction = session.beginTransaction();
             S value = fun.apply(session);
             try {
