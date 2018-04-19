@@ -6,14 +6,14 @@
         var ws;
 
         function init() {
-            ws = new WebSocket("ws://localhost:8080/chatSocket?chat=${chat}");
+            ws = new WebSocket(window.location.href.replace("http", "ws"));
             ws.onopen = function (event) {
 
-            }
+            };
             ws.onmessage = function (event) {
-                var $textarea = document.getElementById("messages");
-                $textarea.value = $textarea.value + event.data + "\n";
-            }
+                var textarea = document.getElementById("messages");
+                textarea.value = textarea.value + event.data + "\n";
+            };
             ws.onclose = function (event) {
 
             }
@@ -37,7 +37,7 @@
 
     <form name="message" action="">
         <input name="usermsg" type="text" id="message" size="40"/>
-        <input type="button" name="submitmsg" value="Send..." onclick="sendMessage();"/>
+        <input type="button" name="submitmsg" value="Send" onclick="sendMessage();"/>
     </form>
 </div>
 </body>

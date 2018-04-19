@@ -9,7 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Roman Golchin (romagolchin@gmail.com)
  */
 @Entity(name = "ChatDataSet")
-//@Table(name = "chats")
+//@Table(
+//        uniqueConstraints = {
+//                @UniqueConstraint(columnNames = {"name", "users"})
+//        }
+//)
 public class ChatDataSet implements DataSet {
 
     public ChatDataSet() {

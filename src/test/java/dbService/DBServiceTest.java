@@ -29,7 +29,8 @@ public class DBServiceTest {
 
     public DBServiceTest() {
         try {
-            dbUnit = new DBUnit(new JdbcDatabaseTester("org.h2.Driver", "jdbc:h2:mem:", "sa", "sa"), DatabaseOperation.NONE, DatabaseOperation.DELETE_ALL);
+            dbUnit = new DBUnit(new JdbcDatabaseTester("org.h2.Driver", "jdbc:h2:mem:", "sa", "sa"),
+                    DatabaseOperation.NONE, DatabaseOperation.DELETE_ALL);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -152,7 +153,7 @@ public class DBServiceTest {
         Set<UserDataSet> users = new HashSet<>();
         Set<UserDataSet> firstHalf = new HashSet<>();
         Set<UserDataSet> secondHalf = new HashSet<>();
-        final int N = 10;
+        final int N = 100;
         for (int i = 0; i < N; i++) {
             final UserDataSet user = dbService.addUser(LOGIN + i, PASSWORD);
             users.add(user);

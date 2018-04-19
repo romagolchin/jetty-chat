@@ -1,5 +1,6 @@
 package dbService;
 
+import dbService.dao.ChatDAO;
 import dbService.datasets.ChatDataSet;
 import dbService.datasets.MessageDataSet;
 import dbService.datasets.UserDataSet;
@@ -25,7 +26,15 @@ public interface DBService {
 
     @NotNull List<MessageDataSet> getAllMessages();
 
-    Serializable addUsersToChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets);
+//    boolean chatExists(@NotNull ChatDataSet chatDataSet);
+
+    /**
+     * If chat with such name and members already exists, return null.
+     * @param chatDataSet
+     * @param userDataSets
+     * @return
+     */
+    ChatDAO.AddResult addUsersToChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets);
 
     void removeUsersFromChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets);
 

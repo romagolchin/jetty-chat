@@ -8,7 +8,6 @@ import java.util.Date;
  * @author Roman Golchin (romagolchin@gmail.com)
  */
 @Entity
-@Table(name = "messages")
 public class MessageDataSet implements DataSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +21,9 @@ public class MessageDataSet implements DataSet {
 
     @ManyToOne
     private UserDataSet user;
+
+    @ManyToOne
+    private ChatDataSet chat;
 
     public MessageDataSet() {
     }

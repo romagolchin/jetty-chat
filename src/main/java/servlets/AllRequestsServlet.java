@@ -10,13 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import static util.Constants.*;
 
-/**
- * @author v.chibrikov
- *         <p>
- *         Пример кода для курса на https://stepic.org/
- *         <p>
- *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
- */
 public class AllRequestsServlet extends CommonServlet {
 
     public void doGet(HttpServletRequest request,

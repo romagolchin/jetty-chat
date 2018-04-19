@@ -10,7 +10,7 @@
             com.mysql.cj.jdbc.Driver
         </property>
         <property name="hibernate.connection.url">
-            jdbc:mysql://localhost/test_chat
+            jdbc:mysql://localhost/test_chat?&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=Europe/Moscow
         </property>
         <property name="hibernate.connection.username">
             root
@@ -27,7 +27,9 @@
         <property name="show_sql">
             true
         </property>
-        <property name="hibernate.current_session_context_class">org.hibernate.context.internal.ThreadLocalSessionContext</property>
+        <property name="hibernate.current_session_context_class">
+            org.hibernate.context.internal.ThreadLocalSessionContext
+        </property>
 
     </session-factory>
 </hibernate-configuration>

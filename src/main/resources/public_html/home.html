@@ -9,6 +9,16 @@
     <input value="Sign Out" type="submit">
 </form>
 <a href="/signup" style="${displaySignUp}">Sign Up</a>
-<a href="/chat">Chat</a>
+<a href="/create_chat" style="${displaySignOut}">New Chat</a>
+<p style="${displaySignOut}">${login}, you are member of ${numberOfChats} chats. </p>
+<#list chats>
+    <ul>
+        <#items as chat>
+            <li>
+                <a href="/chat?chat=${chat.id}" style="${displaySignOut}">${chat.name}</a>
+            </li>
+        </#items>
+    </ul>
+</#list>
 </body>
 </html>

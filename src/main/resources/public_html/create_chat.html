@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create chat</title>
+    <style>
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+    </style>
+    <script type="text/javascript">
+
+        Element.prototype.remove = function () {
+            this.parentElement.removeChild(this);
+        };
+
+        NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+            for(var i = this.length - 1; i >= 0; i--) {
+                if(this[i] && this[i].parentElement) {
+                    this[i].parentElement.removeChild(this[i]);
+                }
+            }
+        };
+
+        // возвращает cookie с именем name, если есть, если нет, то undefined
+        function getCookie(name) {
+            var matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        var ws;
+        var members = new Set();
+
+        function init() {
+            var host = window.location.host;
+            ws = new WebSocket("ws://" + host + "/create_chat");
+            ws.onclose = function (event) {
+
+            };
+            ws.onopen = function (event) {
+
+            };
+            ws.onmessage = function (event) {
+                var i;
+                var response = JSON.parse(event.data);
+                if (response.type === "searchResult") {
+                    var oldResults = document.getElementById("searchResults").childNodes;
+                    oldResults.remove();
+                    for (i = 0; i < response.logins.length; i++) {
+                        addLoginSearchResult(response.logins[i]);
+                    }
+                } else {
+                    var chatName = document.getElementById("chatName").value;
+                    var span = document.getElementById("creationStatus");
+                    var chatLink = document.createElement("a");
+                    chatLink.setAttribute("href", "../chat?chat=" + response.id);
+                    chatLink.textContent = chatName;
+                    if (response.status === "exists") {
+                        span.appendChild(document.createTextNode("Chat "));
+                        span.appendChild(chatLink);
+                        span.appendChild(document.createTextNode(" already exists"));
+                    } else {
+                        clearMemberList();
+                        span.appendChild(chatLink);
+                    }
+                }
+            }
+        }
+
+        function addChatMember(login) {
+            if (!members.has(login)) {
+                members.add(login);
+                var li = document.createElement("li");
+
+                var userSpan = document.createElement("SPAN");
+                userSpan.appendChild(document.createTextNode(login));
+                li.appendChild(userSpan);
+                li.id = "member." + login;
+                document.getElementById("curChatList").appendChild(li);
+
+                var span = document.createElement("SPAN");
+                var txt = document.createTextNode("\u00D7");
+                span.className = "close";
+                span.appendChild(txt);
+                li.appendChild(span);
+
+                span.onclick = function () {
+                    uncheckSearchResult(userSpan.textContent);
+                    this.parentElement.remove();
+                }
+            }
+        }
+
+        function removeChatMember(login) {
+            if (members.delete(login)) {
+                document.getElementById("member." + login).remove();
+            }
+        }
+
+        function addLoginSearchResult(login) {
+            var li = document.createElement("li");
+            li.id = "searchResult." + login;
+            document.getElementById("searchResults").appendChild(li);
+            var cb = document.createElement("input");
+            cb.setAttribute("type", "checkbox");
+            cb.onclick = function () {
+                if (cb.checked) {
+                    addChatMember(login);
+                } else {
+                    removeChatMember(login);
+                }
+            };
+            li.appendChild(cb);
+            var userSpan = document.createElement("SPAN");
+            userSpan.appendChild(document.createTextNode(login));
+            li.appendChild(userSpan);
+        }
+
+        function search() {
+            var queryField = document.getElementById("loginQuery");
+            var request = {
+                "type": "search",
+                "query": queryField.value
+            };
+            ws.send(JSON.stringify(request))
+        }
+
+        function createChat() {
+            let login = getCookie("login");
+            var memberList = login !== undefined ? [login] : [];
+            var curChatList = document.getElementById("curChatList").childNodes;
+            for (var i = 0; i < curChatList.length; i++) {
+                memberList.push(curChatList[i].childNodes[0].textContent)
+            }
+            var request = {
+                "type": "createChat",
+                "members": memberList,
+                "memberNumber": memberList.length,
+                "name": document.getElementById("chatName").value
+            };
+            ws.send(JSON.stringify(request))
+        }
+
+        function clearMemberList() {
+            for (let member of members) {
+                uncheckSearchResult(member);
+            }
+            members.clear();
+            var curChatMembers = document.getElementById("curChatList").childNodes;
+            curChatMembers.remove();
+        }
+
+        function uncheckSearchResult(login) {
+            var result = document.getElementById("searchResult." + login);
+            if (result !== undefined && result !== null)
+                result.childNodes[0].checked = false;
+        }
+
+    </script>
+</head>
+<body onload="init()">
+<input type="text" placeholder="chat name" id="chatName">
+<ul id="curChatList" style="margin-bottom: 10px"></ul>
+<p id="creationStatus"></p>
+<input type="button" onclick="clearMemberList()" value="Clear list" style="margin-right: 10px;">
+<input type="button" onclick="createChat()" value="Create chat" style="margin-bottom: 10px">
+<div id="searchArea" class="header">
+    <input type="text" id="loginQuery" placeholder="login">
+    <input type="button" onclick="search()" value="Search">
+</div>
+<ul id="searchResults"></ul>
+</body>
+</html>

@@ -55,8 +55,14 @@ public class DBServiceImpl implements DBService {
         return new MessageDAO(sessionFactory).getAll();
     }
 
+//    @Override
+//    public boolean chatExists(@NotNull ChatDataSet chatDataSet) {
+//        return new ChatDAO(sessionFactory).exists(chatDataSet);
+//    }
+
+
     @Override
-    public Serializable addUsersToChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets) {
+    public ChatDAO.AddResult addUsersToChat(@NotNull ChatDataSet chatDataSet, @NotNull Set<UserDataSet> userDataSets) {
         return new ChatDAO(sessionFactory).addUsers(chatDataSet, userDataSets);
     }
 

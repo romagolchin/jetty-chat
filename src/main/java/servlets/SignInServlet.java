@@ -36,7 +36,7 @@ public class SignInServlet extends CommonServlet {
                     System.out.println(logString + session.getId());
                     if (context.getAccountService().signIn(session, login, password)) {
                         resp.setStatus(HttpServletResponse.SC_OK);
-                        resp.sendRedirect("/chat");
+                        resp.sendRedirect("/home");
                     } else {
                         resp.getWriter().print(PageGenerator.getInstance().getPage("static/unauthorized.html"));
                         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

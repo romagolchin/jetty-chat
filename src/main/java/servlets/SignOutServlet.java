@@ -30,7 +30,7 @@ public class SignOutServlet extends CommonServlet {
                 resp.getWriter().print(PageGenerator.getInstance().getPage("static/unauthorized.html"));
                 resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
-                resp.sendRedirect("/");
+                resp.sendRedirect("/home");
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
         }

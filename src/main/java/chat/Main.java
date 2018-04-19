@@ -30,12 +30,13 @@ public class Main {
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         contextHandler.addServlet(HomeServlet.class, "/home");
-        contextHandler.addServlet(ChatServlet.class, "/chat");
+        contextHandler.addServlet(ChatWebSocketServlet.class, "/chat");
         contextHandler.addServlet(SignInServlet.class, "/signin");
         contextHandler.addServlet(SignOutServlet.class, "/signout");
         contextHandler.addServlet(SignUpServlet.class, "/signup");
+        contextHandler.addServlet(CreateChatWSServlet.class, "/create_chat");
         contextHandler.addServlet(AllRequestsServlet.class, "/*");
-
+//        contextHandler.addServlet(ChatWebSocketServlet.class, "/chatSocket");
         SessionHandler sessionHandler = new SessionHandler();
         sessionHandler.setUsingCookies(false);
 
